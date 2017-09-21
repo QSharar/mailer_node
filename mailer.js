@@ -4,29 +4,29 @@ var exphbs = require("express-handlebars");
 var path = require("path");
 var nodemailer = require("nodemailer");
 
-var app = express();
-app.engine("handlebars", exphbs());
-app.set("view engine", "handlebars");
+var app = express(); //create the express app
+app.engine("handlebars", exphbs()); //registering the templating engine
+app.set("view engine", "handlebars"); //set the engine as the default view engine
 
 
 
 app.use( (req, res, next)=>{
     console.log(`${req.method} --> ${req.url}`);
     next();
-} );
+} );  //log the url and request for every transaction 
 
 
-app.use("/public" , express.static(path.join(__dirname, "public")));
+app.use("/public" , express.static(path.join(__dirname, "public"))); //set the public directory 
 
-app.use(bp.urlencoded({extended: false}));
+app.use(bp.urlencoded({extended: false})); //middleware for URL encoding/decoding and JSON formating 
 app.use(bp.json());
 
-app.get("/add", (req, res) => {
+app.get("/add", (req, res) => { //GET Route and render the view
     res.render('contact');
 
 });
 
-app.post("/add", (req, res) => {
+app.post("/add", (req, res) => { //on post, call nodemailer and pass HTML variable with values.
     console.log(req.body);
     const output = `
         New Signup!
@@ -43,25 +43,18 @@ app.post("/add", (req, res) => {
 
     // create reusable transporter object using the default SMTP transport
     let transporter = nodemailer.createTransport({
-        // host: 'smtp.ethereal.email',
-        // port: 587,
-         secure: false, // true for 465, false for other ports
-        // auth: {
-        //     user: account.user, // generated ethereal user
-        //     pass: account.pass  // generated ethereal password
-        // }
+        
         service: 'gmail',
+        secure: false, // true for 465, false for other ports
         auth: {
             user: 'enter the email you want to send from',
             pass: 'enter your actual password here'
         },
-        tls: {
+        tls: { //for access from non local host 
             rejectUnauthorized: false
         }
 
     });
-
-    
 
     // setup email data with unicode symbols
     let mailOptions = {
@@ -78,10 +71,7 @@ app.post("/add", (req, res) => {
             return console.log(error);
         }
         console.log('Message sent: %s', info.messageId);
-        // Preview only available when sending through an Ethereal account
-        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-
-
+      
     });
 });
 
